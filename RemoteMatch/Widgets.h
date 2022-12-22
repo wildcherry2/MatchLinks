@@ -24,17 +24,25 @@ namespace ImGuiComponents {
 
     class AbstractComponent {
         public:
-            explicit AbstractComponent(const std::string& name, std::shared_ptr<DefaultFunctorSig> on_interact_callback = nullptr);
-            virtual      ~AbstractComponent() = default;
-            virtual void Render(){}
-            const std::string& GetName() { return name; }
-            const std::string& GetId() { return id; }
-            void SetName(const std::string& name) { this->name = name; id = GenerateId(); }
-            
+            explicit                         AbstractComponent(const std::string& name, std::shared_ptr<DefaultFunctorSig> on_interact_callback = nullptr);
+            virtual                          ~AbstractComponent() = default;
+            virtual void                     Render(){}
+            [[nodiscard]] const std::string& GetName() const { return name; }
+            [[nodiscard]] const std::string& GetId() const { return id; }
+            void                             SetName(const std::string& name) { this->name = name; id = GenerateId(); }
+            [[nodiscard]] const float&       GetWidth() const { return width; }
+            void                             SetWidth(const float& new_width) { width = new_width; }
+            virtual void                     ResizeWidthWithWindow() { width = -1.0f * CalculateLabelWidth(); }
+            virtual float                    CalculateLabelWidth();
         protected:
             bool active_flag = false;
             std::string name, id;
             std::shared_ptr<DefaultFunctorSig> on_interact_callback = nullptr;
+            float width = 0.0f;
+            bool pushed_width = false;
+
+            virtual void SizeRuleBegin();
+            virtual void SizeRuleEnd();
         private:
             // Guarantees uniqueness of name to prevent name collisions within ImGui
             std::string GenerateId();
@@ -47,7 +55,12 @@ namespace ImGuiComponents {
             ~Checkbox() override = default;
             bool GetChecked() { return checked; }
             void SetChecked(const bool& checked) { this->checked = checked; }
+            
         private:
+            void SizeRuleBegin() override{}
+            void SizeRuleEnd() override{}
+            void ResizeWidthWithWindow() override {}
+            float CalculateLabelWidth() override { return 1.0f; }
             bool checked = false;
             std::function<void(const bool&)> on_interact_callback;
     };
@@ -71,6 +84,12 @@ namespace ImGuiComponents {
             explicit Button(const std::string& name, std::function<void()> on_interact_callback = {});
             ~Button() override = default;
             void Render() override;
+            void ResizeWidthWithWindow() override { width = -FLT_MIN; resize_prop = 1.0f; }
+            void ResizeWidthWithWindowProportional(const float& prop) { resize_prop = prop * -1.0f; width = 0.0f; }
+
+        private:
+            float resize_prop = 1.0f;
+            void SizeRuleBegin() override;
     };
 
     class InputText : public AbstractComponent {

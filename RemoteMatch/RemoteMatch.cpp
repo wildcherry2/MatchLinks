@@ -17,11 +17,11 @@ void RemoteMatch::onLoad() {
 	
 	Menu::Instance(); 
 	Settings::Instance();
-	ServerListener::Instance().StartServer();
+	//ServerListener::Instance().StartServer();
 }
 
 void RemoteMatch::onUnload() {
-    ServerListener::Instance().StopServer();
+    //ServerListener::Instance().StopServer();
 }
 
 void RemoteMatch::RenderSettings() {
