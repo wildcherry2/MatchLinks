@@ -15,7 +15,7 @@ struct SettingsData{
     int region = 0;
     std::string map = internal_map_names[0];
     uint16_t port = 2525;
-    bool remember_previous_info = true;
+    //bool remember_previous_info = true;
     MatchData* previous_info = nullptr;
 };
 
@@ -36,7 +36,7 @@ class Settings {
         std::shared_ptr<Combobox> settings_map_combobox;
         std::shared_ptr<Button> settings_save_button;
         std::shared_ptr<Checkbox> enabled_checkbox;
-        std::shared_ptr<Checkbox> remember_last_info_checkbox;
+        //std::shared_ptr<Checkbox> remember_last_info_checkbox;
         std::shared_ptr<InputText> port_inputtext;
         SettingsData data;
 };

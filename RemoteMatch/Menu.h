@@ -24,7 +24,10 @@ class Menu {
         std::shared_ptr<Button> reset_button;
         std::shared_ptr<Combobox> map_combo;
         std::shared_ptr<Combobox> region_combo;
-        std::shared_ptr<Button> copy_and_create_match_button;
+        std::shared_ptr<Button> copy_join_link_button;
+        std::shared_ptr<Button> copy_create_link_button;
+        std::shared_ptr<Button> join_button;
+        std::shared_ptr<Button> create_button;
 
         Menu();
         MatchData match_data;

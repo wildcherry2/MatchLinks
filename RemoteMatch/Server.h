@@ -9,6 +9,7 @@ class ServerListener {
         uint16_t GetPort() { return port; }
         void StartServer();
         void StopServer();
+        bool IsListening() { return listening; }
 
     private:
         ServerListener(const uint16_t& port);

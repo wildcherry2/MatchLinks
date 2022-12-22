@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "NamesMap.h"
 
-static const std::vector<std::pair<std::string, std::string>> names_map = {
+static const std::map<std::string, std::string> names_map = {
     {"Aquadome", "Underwater_P"},
     {"Beckwith Park", "Park_P"},
     {"Beckwith Park (Midnight)", "Park_Night_P"},

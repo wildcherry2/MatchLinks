@@ -36,7 +36,7 @@ namespace ImGuiComponents {
             virtual float                    CalculateLabelWidth();
         protected:
             bool active_flag = false;
-            std::string name, id;
+            std::string name, id; // name = text displayed on UI; id = text displayed on UI + random ID sequence
             std::shared_ptr<DefaultFunctorSig> on_interact_callback = nullptr;
             float width = 0.0f;
             bool pushed_width = false;
@@ -46,6 +46,10 @@ namespace ImGuiComponents {
         private:
             // Guarantees uniqueness of name to prevent name collisions within ImGui
             std::string GenerateId();
+    };
+
+    class Text : public AbstractComponent {
+        
     };
 
     class Checkbox : public AbstractComponent {
@@ -72,6 +76,7 @@ namespace ImGuiComponents {
             ~Combobox() override = default;
             std::string GetSelected();
             [[nodiscard]] int GetSelectedIndex() { return selected; }
+            void SetSelectedIndex(const int& to_select) { selected = to_select; }
         protected:
             std::vector<std::string> options;
             int selected = 0;

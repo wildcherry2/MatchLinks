@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Settings.h"
-
+#include "Server.h"
 using nlohmann::json;
 
 Settings& Settings::Instance() {
@@ -16,7 +16,7 @@ bool Settings::Save() {
         out_settings["region"] = data.region;
         out_settings["map"] = data.map;
         out_settings["port"] = data.port;
-        out_settings["remember_previous_info"] = data.remember_previous_info;
+        //out_settings["remember_previous_info"] = data.remember_previous_info;
         writer << out_settings;
         writer.close();
 
@@ -41,7 +41,7 @@ bool Settings::Load() {
         data.enabled = in_settings["enabled"];
         data.region = in_settings["region"];
         data.map = in_settings["map"];
-        data.remember_previous_info = in_settings["remember_previous_info"];
+        //data.remember_previous_info = in_settings["remember_previous_info"];
         data.port = in_settings["port"];
     }
 
@@ -56,16 +56,17 @@ void Settings::Render() {
     enabled_checkbox->Render();
 
     if(data.enabled) {
-        remember_last_info_checkbox->Render();
+        //remember_last_info_checkbox->Render();
         settings_map_combobox->Render();
         settings_region_combobox->Render();
         port_inputtext->Render();
-        settings_save_button->Render();
+        //settings_save_button->Render();
     }
 }
 
 #define CVAR(subscriber, converter, ...) plugin->cvarManager->registerCvar(__VA_ARGS__).addOnValueChanged([this](const std::string& old_val, CVarWrapper cvar){ \
     data.##subscriber = cvar.##converter ();\
+    Save();\
 })\
 
 #define SETVAR(name, value) plugin->cvarManager->getCvar(name).setValue(value)
@@ -76,18 +77,23 @@ Settings::Settings() {
     Load();
 
     CVAR(enabled, getBoolValue, "ml_enabled", data.enabled ? "1" : "0", "", true, true, 0, true, 1, false);
-    CVAR(remember_previous_info, getBoolValue, "ml_remember_info", data.remember_previous_info ? "1" : "0", "", true, true, 0, true, 1, false);
+    //CVAR(remember_previous_info, getBoolValue, "ml_remember_info", data.remember_previous_info ? "1" : "0", "", true, true, 0, true, 1, false);
     CVAR(region, getIntValue, "ml_region", std::to_string(data.region), "", true, true, 0, true, 10, false);
     CVAR(map, getStringValue, "ml_map", data.map, "", true, false, 0, false, 0, false);
     CVAR(port, getIntValue, "ml_port", std::to_string(data.port), "", true, true, 0, true, UINT16_MAX, false);
 
     enabled_checkbox = std::make_shared<Checkbox>("Enable", data.enabled, [this](const bool& checked){
         SETVAR("ml_enabled", checked ? "1" : "0");
+        auto& server = ServerListener::Instance();
+        if(!checked && server.IsListening())
+            ServerListener::Instance().StopServer();
+        else if(checked && !server.IsListening())
+            ServerListener::Instance().StartServer();
     });
 
-    remember_last_info_checkbox = std::make_shared<Checkbox>("Remember previous match information", data.remember_previous_info, [this](const bool& checked){
+    /*remember_last_info_checkbox = std::make_shared<Checkbox>("Remember previous match information", data.remember_previous_info, [this](const bool& checked){
         SETVAR("ml_remember_info", checked ? "1" : "0");
-    });
+    });*/
 
     port_inputtext = std::make_shared<InputText>("Listen Port (0-65535)",[this](const std::string* in){
         if(in) {
@@ -120,9 +126,20 @@ Settings::Settings() {
         SETVAR("ml_region", static_cast<int>(region_map.at(options[index])));
     });
 
-    settings_save_button = std::make_shared<Button>("Save Settings", [this]{
+    settings_region_combobox->SetSelectedIndex(data.region);
+    int map = 0; // if map isn't found for some reason, defaults to first option by initializing it here
+    auto& selected_map_name = data.map;
+    for(int it = 0; it < internal_map_names.size(); it++) {
+        if(internal_map_names[it] == selected_map_name) {
+            map = it;
+            break;
+        }
+    }
+    settings_map_combobox->SetSelectedIndex(map);
+
+    /*settings_save_button = std::make_shared<Button>("Save Settings", [this]{
         Save();
-    });
+    });*/
 }
 
 #undef CVAR
@@ -135,7 +152,7 @@ Settings::~Settings() {
     UNREG("ml_enabled");
     UNREG("ml_map");
     UNREG("ml_region");
-    UNREG("ml_remember_info");
+    //UNREG("ml_remember_info");
     UNREG("ml_port");
 }
 

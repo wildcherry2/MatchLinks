@@ -2,6 +2,7 @@
 #include "Menu.h"
 #include "NamesMap.h"
 #include "RemoteMatch.h"
+#include "Settings.h"
 
 Menu& Menu::Instance() {
     static Menu menu;
@@ -17,7 +18,13 @@ void Menu::Render() {
     ImGui::NewLine();
     map_combo->Render();
     region_combo->Render();
-    copy_and_create_match_button->Render();
+    create_button->Render();
+    ImGui::SameLine();
+    join_button->Render();
+    ImGui::SameLine();
+    copy_join_link_button->Render();
+    ImGui::SameLine();
+    copy_create_link_button->Render();
 }
 
 Menu::Menu() {
@@ -37,6 +44,19 @@ Menu::Menu() {
         match_data.region = region_map.at(options[selected]);
     });
 
+    auto& settings = Settings::Instance().GetSettingsData();
+
+    region_combo->SetSelectedIndex(settings.region);
+    int map = 0; // if map isn't found for some reason, defaults to first option by initializing it here
+    auto& selected_map_name = settings.map;
+    for(int it = 0; it < internal_map_names.size(); it++) {
+        if(internal_map_names[it] == selected_map_name) {
+            map = it;
+            break;
+        }
+    }
+    map_combo->SetSelectedIndex(map);
+
     show_password_button = std::make_shared<Button>("Show Password", [this] {
         if(show_password_button->GetName() == "Show Password") {
             password_input->SetFlags(ImGuiInputTextFlags_None);
@@ -50,15 +70,36 @@ Menu::Menu() {
 
     password_input->SetFlags(ImGuiInputTextFlags_Password);
 
-    copy_and_create_match_button = std::make_shared<Button>("Copy Link and Create Match", [this] {
+    copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
             std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:2525/match?action=join?name={}?password={})", std::make_format_args(*match_data.name, *match_data.password));
+            ss << std::vformat(R"(http://localhost:2525/match?action=join&name={}&password={})", std::make_format_args(*match_data.name, *match_data.password));
             ImGui::LogToClipboard();
             ImGui::LogText(ss.str().c_str());
             ImGui::LogFinish();
+        }
+        catch(...) {
+            LOG("Internal formatting error!");
+        }
+    });
 
-            plugin->gameWrapper->Execute([this](GameWrapper* gw) {
+    copy_create_link_button = std::make_shared<Button>("Copy Create Link", [this] {
+        std::stringstream ss;
+        ss << std::vformat(R"(http://localhost:2525/match?action=create&name={}&password={}&region={})", std::make_format_args(*match_data.name, *match_data.password, static_cast<int>(match_data.region)));
+        ImGui::LogToClipboard();
+        ImGui::LogText(ss.str().c_str());
+        ImGui::LogFinish();
+    });
+
+    reset_button = std::make_shared<Button>("Reset", [this] {
+        *match_data.name = "";
+        *match_data.password = "";
+        name_input->ClearInput();
+        password_input->ClearInput();
+    });
+
+    create_button = std::make_shared<Button>("Create Match", [this] {
+        plugin->gameWrapper->Execute([this](GameWrapper* gw) {
                 auto mmwrapper = gw->GetMatchmakingWrapper();
                 if(!mmwrapper.IsNull()) {
                     CustomMatchSettings cms;
@@ -74,19 +115,25 @@ Menu::Menu() {
                     cms.bClubServer = false;
                     cms.bPartyMembersOnly = false;
 
+                    LOG("Creating lobby with name = {}, password = {}, region = {}, map = {}", cms.ServerName, cms.Password, static_cast<int>(match_data.region), *match_data.map);
+
                     mmwrapper.CreatePrivateMatch(match_data.region, cms);
                 }
             });
-        }
-        catch(...) {
-            LOG("Internal formatting error!");
-        }
     });
 
-    reset_button = std::make_shared<Button>("Reset", [this] {
-        *match_data.name = "";
-        *match_data.password = "";
-        name_input->ClearInput();
-        password_input->ClearInput();
+    join_button = std::make_shared<Button>("Join Match", [this] {
+        plugin->gameWrapper->Execute([this](GameWrapper* gw) {
+            auto mmwrapper = gw->GetMatchmakingWrapper();
+            if(!mmwrapper.IsNull()) {
+                LOG("Joining lobby with name = {} and password = {}", *match_data.name, *match_data.password);
+                mmwrapper.JoinPrivateMatch(*match_data.name, *match_data.password);
+            }
+        });
     });
+
+    
+    match_data.map = &settings.map;
+    match_data.region = static_cast<Region>(settings.region);
+    
 }

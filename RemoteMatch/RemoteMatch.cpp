@@ -14,14 +14,16 @@ void RemoteMatch::onLoad() {
 		::Sleep(100);*/
 	_globalCvarManager = cvarManager;
 	plugin = this;
-	
-	Menu::Instance(); 
-	Settings::Instance();
-	//ServerListener::Instance().StartServer();
+    Settings::Instance();
+    if(auto enabled = cvarManager->getCvar("ml_enabled").getBoolValue()) {
+	    Menu::Instance(); 
+	    ServerListener::Instance().StartServer();
+	}
 }
 
 void RemoteMatch::onUnload() {
-    //ServerListener::Instance().StopServer();
+	if(auto enabled = cvarManager->getCvar("ml_enabled").getBoolValue())
+        ServerListener::Instance().StopServer();
 }
 
 void RemoteMatch::RenderSettings() {
@@ -29,5 +31,6 @@ void RemoteMatch::RenderSettings() {
 }
 
 void RemoteMatch::RenderWindow() {
-	Menu::Instance().Render();
+	if(auto enabled = cvarManager->getCvar("ml_enabled").getBoolValue())
+	    Menu::Instance().Render();
 }

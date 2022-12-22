@@ -115,7 +115,12 @@ void ImGuiComponents::InputText::Render() {
 
     SizeRuleEnd();
 }
-void ImGuiComponents::InputText::SetInputEnabled(const bool& is_enabled) { input_enabled = is_enabled; flags = is_enabled ? flags | ImGuiInputTextFlags_ReadOnly : flags & ~ImGuiInputTextFlags_ReadOnly; }
+
+void ImGuiComponents::InputText::SetInputEnabled(const bool& is_enabled) {
+    input_enabled = is_enabled;
+    flags = is_enabled ? flags | ImGuiInputTextFlags_ReadOnly : flags & ~ImGuiInputTextFlags_ReadOnly;
+}
+
 bool ImGuiComponents::InputText::GetInputEnabled() { return input_enabled; }
 
 #pragma endregion

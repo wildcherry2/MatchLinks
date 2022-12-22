@@ -5,7 +5,7 @@
 
 ServerListener& ServerListener::Instance(const uint16_t& new_port) {
     static ServerListener server_listener(new_port);
-    if(server_listener.listening) server_listener.SetPort(new_port);
+    //if(server_listener.listening) server_listener.SetPort(new_port);
     return server_listener;
 }
 
@@ -70,7 +70,10 @@ void ServerListener::StartServer() {
                     
                         auto mmwrapper = plugin->gameWrapper->GetMatchmakingWrapper();
                         if(!mmwrapper.IsNull()) {
-                            if(!join) {
+                            if(name.empty()) {
+                                LOG("Link with empty name field received, but a name is required to create a private match!");
+                            }
+                            else if(!join) {
                                 CustomMatchSettings cms;
                                 cms.GameTags = "BotsNone";
                                 cms.GameMode = 0;
@@ -122,6 +125,7 @@ void ServerListener::StopServer() {
         server.stop(); 
         server.io_service->stop();
         server_thread.join();
+        listening = false; // insurance
     }
     catch(...) {}
 }
