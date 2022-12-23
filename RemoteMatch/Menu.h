@@ -4,6 +4,7 @@
 using ImGuiComponents::Combobox;
 using ImGuiComponents::InputText;
 using ImGuiComponents::Button;
+using ImGuiComponents::Text;
 
 struct MatchData {
     std::string* name = nullptr;
@@ -28,6 +29,7 @@ class Menu {
         std::shared_ptr<Button> copy_create_link_button;
         std::shared_ptr<Button> join_button;
         std::shared_ptr<Button> create_button;
+        std::shared_ptr<Text> status_text; // TODO
 
         Menu();
         MatchData match_data;

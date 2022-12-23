@@ -98,13 +98,17 @@ Settings::Settings() {
     port_inputtext = std::make_shared<InputText>("Listen Port (0-65535)",[this](const std::string* in){
         if(in) {
             try {
+                auto new_port = std::stoull(*in);
                 if(in->find("-") != std::string::npos) {
+                    LOG("Error setting port! Port number can't be negative!");
                     // TOOLTIP: UINT ONLY!
                 }
-                else if(std::stoull(*in) <= UINT16_MAX) {
+                else if(new_port <= UINT16_MAX) {
                     SETVAR("ml_port", *in);
+                    ServerListener::Instance().SetPort(new_port);
                 }
                 else {
+                    LOG("Error setting port! Port number can only be up to 65,535!");
                     // TOOLTIP: 2 BYTES ONLY!
                 }
             }
@@ -117,6 +121,7 @@ Settings::Settings() {
     });
 
     port_inputtext->SetText(std::to_string(data.port));
+    port_inputtext->SetFlags(ImGuiInputTextFlags_CharsDecimal);
 
     settings_map_combobox = std::make_shared<Combobox>("Default Map", friendly_map_names, [this](int index, const std::vector<std::string>& options){
         SETVAR("ml_map", internal_map_names[index]);

@@ -11,8 +11,10 @@ ServerListener& ServerListener::Instance(const uint16_t& new_port) {
 
 void ServerListener::SetPort(const uint16_t& new_port) {
     port = new_port;
-    StopServer();
-    StartServer();
+    if(listening) {
+        StopServer();
+        StartServer();
+    }
 }
 
 #define CHECKFIELD if(current_field == fields.end()) {\
@@ -91,7 +93,7 @@ void ServerListener::StartServer() {
                                 mmwrapper.JoinPrivateMatch(name, password);
                             }
                         }
-                        else DEBUGLOG("Tried to {} match with null MatchmakingWrapper!", join ? "join" : "create");
+                        else LOG("Tried to {} match with null MatchmakingWrapper!", join ? "join" : "create");
 
                         response->close_connection_after_response = true;
                         response->write(SimpleWeb::StatusCode::success_accepted, "alright");
@@ -99,14 +101,14 @@ void ServerListener::StartServer() {
                     });
                 }
 
-                else DEBUGLOG("Tried to join/create match by URL with null GameWrapper or while in game!");
+                else LOG("Tried to join/create match by URL with null GameWrapper or while in game!");
             };
 
             server.start();
             listening = false;
         } 
         catch(const std::exception& ex) {
-            DEBUGLOG("Caught exception in server thread: {}", ex.what());
+            LOG("Caught exception in server thread: {}", ex.what());
         }
     });
 }
