@@ -25,6 +25,8 @@ void Menu::Render() {
     copy_join_link_button->Render();
     ImGui::SameLine();
     copy_create_link_button->Render();
+    ImGui::NewLine();
+    status_text->Render();
 }
 
 Menu::Menu() {
@@ -70,25 +72,48 @@ Menu::Menu() {
 
     password_input->SetFlags(ImGuiInputTextFlags_Password);
 
+    // TODO: nullcheck password
+
     copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
+            if(!match_data.name || match_data.name->empty()){
+                status_text->SetNameAndColor(NameRequiredError.msg, NameRequiredError.color);
+                return;
+            }
+
             std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:2525/match?action=join&name={}&password={})", std::make_format_args(*match_data.name, *match_data.password));
+            ss << std::vformat(R"(http://localhost:{}/match?action=join&name={}&password={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, *match_data.password));
             ImGui::LogToClipboard();
             ImGui::LogText(ss.str().c_str());
             ImGui::LogFinish();
+
+            status_text->SetNameAndColor(CopiedJoinLink.msg, CopiedJoinLink.color);
         }
         catch(...) {
             LOG("Internal formatting error!");
+            status_text->SetNameAndColor(FormattingError.msg, FormattingError.color);
         }
     });
 
     copy_create_link_button = std::make_shared<Button>("Copy Create Link", [this] {
-        std::stringstream ss;
-        ss << std::vformat(R"(http://localhost:2525/match?action=create&name={}&password={}&region={})", std::make_format_args(*match_data.name, *match_data.password, static_cast<int>(match_data.region)));
-        ImGui::LogToClipboard();
-        ImGui::LogText(ss.str().c_str());
-        ImGui::LogFinish();
+        try {
+            if(!match_data.name || match_data.name->empty()){
+                status_text->SetNameAndColor(NameRequiredError.msg, NameRequiredError.color);
+                return;
+            }
+
+            std::stringstream ss;
+            ss << std::vformat(R"(http://localhost:{}/match?action=create&name={}&password={}&region={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, *match_data.password, static_cast<int>(match_data.region)));
+            ImGui::LogToClipboard();
+            ImGui::LogText(ss.str().c_str());
+            ImGui::LogFinish();
+
+            status_text->SetNameAndColor(CopiedCreateLink.msg, CopiedCreateLink.color);
+        }
+        catch(...){
+            LOG("Internal formatting error!");
+            status_text->SetNameAndColor(FormattingError.msg, FormattingError.color);
+        }
     });
 
     reset_button = std::make_shared<Button>("Reset", [this] {
@@ -132,6 +157,7 @@ Menu::Menu() {
         });
     });
 
+    status_text = std::make_shared<Text>("", ImGuiComponents::ColorConstants::WHITE);
     
     match_data.map = &settings.map;
     match_data.region = static_cast<Region>(settings.region);

@@ -107,3 +107,22 @@ void ImGuiComponents::Checkbox::Render() {
 }
 
 #pragma endregion
+
+#pragma region Text
+
+ImGuiComponents::Text::Text(const std::string& name, const ImVec4& color) : AbstractComponent<void>(name, {}) {
+    SetColor(color);
+}
+
+void ImGuiComponents::Text::Render() {
+    ImGui::TextColored(color, name.c_str());
+}
+
+#pragma endregion
+
+
+static const ImVec4 ImGuiComponents::ColorConstants::BLUE  = {0.0f, 0.0f, 255.0f, 1.0f};
+static const ImVec4 ImGuiComponents::ColorConstants::RED   = {255.0f, 0.0f, 0.0f, 1.0f};
+static const ImVec4 ImGuiComponents::ColorConstants::GREEN = {0.0f, 255.0f, 0.0f, 1.0f};
+static const ImVec4 ImGuiComponents::ColorConstants::BLACK = {0.0f, 0.0f, 0.0f, 1.0f};
+static const ImVec4 ImGuiComponents::ColorConstants::WHITE = {255.0f, 255.0f, 255.0f, 1.0f};

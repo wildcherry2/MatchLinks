@@ -71,7 +71,17 @@ namespace ImGuiComponents {
     };
 
     class Text : public AbstractComponent<void> {
-        
+        public:
+            explicit Text(const std::string& name, const ImVec4& color = {255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f});
+            ~Text() = default;
+            void Render() override;
+            ImVec4 GetColor() { return ImVec4(color.x * 255.0f, color.y * 255.0f, color.z * 255.0f, color.w); }
+
+            // RGBA format; 0-255 RGB, 0-1 A
+            void SetColor(const ImVec4& new_color) { color.x = new_color.x / 255.0f; color.y = new_color.y / 255.0f; color.z = new_color.z / 255.0f; color.w = new_color.w; }
+            void SetNameAndColor(const std::string& new_name, const ImVec4& new_color) { SetColor(new_color); name = new_name; }
+        private:
+            ImVec4 color;
     };
 
     class Checkbox : public AbstractComponent<void, const bool&> {
@@ -141,4 +151,13 @@ namespace ImGuiComponents {
             void Render() override;
     };
 
+    // WARNING: These color constants are only valid for these widgets, and may not produce the correct result if used with traditional ImGui methods
+    namespace ColorConstants {
+        extern const ImVec4 RED;
+        extern const ImVec4 GREEN;
+        extern const ImVec4 BLUE;
+        extern const ImVec4 WHITE;
+        extern const ImVec4 BLACK;
+    };
 }
+
