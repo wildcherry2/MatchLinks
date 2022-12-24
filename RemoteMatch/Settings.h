@@ -1,7 +1,7 @@
 #pragma once
 #include "Widgets.h"
 #include "NamesMap.h"
-#include "RemoteMatch.h"
+#include "MatchLinks.h"
 
 using ImGuiComponents::Combobox;
 using ImGuiComponents::Checkbox;

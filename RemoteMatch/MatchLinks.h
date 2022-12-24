@@ -2,7 +2,7 @@
 #include "version.h"
 constexpr auto plugin_version = stringify(VERSION_MAJOR) "." stringify(VERSION_MINOR) "." stringify(VERSION_PATCH) "." stringify(VERSION_BUILD);
 
-class RemoteMatch: public BakkesMod::Plugin::BakkesModPlugin, public SettingsWindowBase, public PluginWindowBase {
+class MatchLinks: public BakkesMod::Plugin::BakkesModPlugin, public SettingsWindowBase, public PluginWindowBase {
 	//std::shared_ptr<bool> enabled;
 
 	//Boilerplate
@@ -14,4 +14,4 @@ public:
 	void RenderWindow() override; // Uncomment if you want to render your own plugin window
 };
 
-extern RemoteMatch* plugin;
+extern MatchLinks* plugin;

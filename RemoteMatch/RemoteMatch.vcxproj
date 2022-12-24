@@ -160,7 +160,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RemoteMatch.cpp" />
+    <ClCompile Include="MatchLinks.cpp" />
     <ClCompile Include="GuiBase.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="Settings.cpp" />
@@ -186,7 +186,7 @@
     <ClInclude Include="NamesMap.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="GuiBase.h" />
-    <ClInclude Include="RemoteMatch.h" />
+    <ClInclude Include="MatchLinks.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="version.h" />
