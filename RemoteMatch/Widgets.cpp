@@ -120,9 +120,12 @@ void ImGuiComponents::Text::Render() {
 
 #pragma endregion
 
+#pragma region ColorConstants
 
 static const ImVec4 ImGuiComponents::ColorConstants::BLUE  = {0.0f, 0.0f, 255.0f, 1.0f};
 static const ImVec4 ImGuiComponents::ColorConstants::RED   = {255.0f, 0.0f, 0.0f, 1.0f};
 static const ImVec4 ImGuiComponents::ColorConstants::GREEN = {0.0f, 255.0f, 0.0f, 1.0f};
 static const ImVec4 ImGuiComponents::ColorConstants::BLACK = {0.0f, 0.0f, 0.0f, 1.0f};
 static const ImVec4 ImGuiComponents::ColorConstants::WHITE = {255.0f, 255.0f, 255.0f, 1.0f};
+
+#pragma endregion
