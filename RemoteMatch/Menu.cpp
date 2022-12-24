@@ -27,6 +27,7 @@ void Menu::Render() {
     copy_create_link_button->Render();
     ImGui::NewLine();
     status_text->Render();
+    warning_text->Render();
 }
 
 Menu::Menu() {
@@ -72,8 +73,6 @@ Menu::Menu() {
 
     password_input->SetFlags(ImGuiInputTextFlags_Password);
 
-    // TODO: nullcheck password
-
     copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
             if(!match_data.name || match_data.name->empty()){
@@ -81,8 +80,17 @@ Menu::Menu() {
                 return;
             }
 
+            const bool pass_valid = match_data.password;
+            const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
+            if(!pass_valid || !pass_entered) {
+                warning_text->SetNameAndColor(PassSuggestedWarning.msg, PassSuggestedWarning.color);
+            }
+            else if(pass_entered) {
+                warning_text->SetName("");
+            }
+
             std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:{}/match?action=join&name={}&password={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, *match_data.password));
+            ss << std::vformat(R"(http://localhost:{}/match?action=join&name={}&password={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : ""));
             ImGui::LogToClipboard();
             ImGui::LogText(ss.str().c_str());
             ImGui::LogFinish();
@@ -102,8 +110,17 @@ Menu::Menu() {
                 return;
             }
 
+            const bool pass_valid = match_data.password;
+            const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
+            if(!pass_valid || !pass_entered) {
+                warning_text->SetNameAndColor(PassSuggestedWarning.msg, PassSuggestedWarning.color);
+            }
+            else if(pass_entered) {
+                warning_text->SetName("");
+            }
+
             std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:{}/match?action=create&name={}&password={}&region={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, *match_data.password, static_cast<int>(match_data.region)));
+            ss << std::vformat(R"(http://localhost:{}/match?action=create&name={}&password={}&region={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : "", static_cast<int>(match_data.region)));
             ImGui::LogToClipboard();
             ImGui::LogText(ss.str().c_str());
             ImGui::LogFinish();
@@ -158,6 +175,7 @@ Menu::Menu() {
     });
 
     status_text = std::make_shared<Text>("", ImGuiComponents::ColorConstants::WHITE);
+    warning_text = std::make_shared<Text>("", ImGuiComponents::ColorConstants::WHITE);
     
     match_data.map = &settings.map;
     match_data.region = static_cast<Region>(settings.region);

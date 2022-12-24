@@ -158,6 +158,7 @@ namespace ImGuiComponents {
         extern const ImVec4 BLUE;
         extern const ImVec4 WHITE;
         extern const ImVec4 BLACK;
+        extern const ImVec4 YELLOW;
     };
 }
 
