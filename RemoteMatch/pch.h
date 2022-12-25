@@ -12,7 +12,7 @@
 #include <functional>
 #include <memory>
 #include <thread>
-#include <nlohmann/json.hpp>
+#include "json/single_include/nlohmann/json.hpp"
 #include <fstream>
 #include <set>
 
