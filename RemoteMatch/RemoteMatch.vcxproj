@@ -189,6 +189,7 @@
     <ClInclude Include="MatchLinks.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="Settings.h" />
+    <ClInclude Include="StatusMessage.h" />
     <ClInclude Include="version.h" />
     <ClInclude Include="Widgets.h" />
   </ItemGroup>

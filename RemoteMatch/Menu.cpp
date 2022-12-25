@@ -39,6 +39,25 @@ bool Menu::CheckName() {
     return true;
 }
 
+bool Menu::CheckPassword() {
+    const bool pass_valid = match_data.password;
+    const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
+    if(!pass_valid || !pass_entered) {
+        warning_text->SetNameAndColor(PassSuggestedWarning.msg, PassSuggestedWarning.color);
+        return false;
+    }
+
+    warning_text->SetName("");
+    return true;
+    
+}
+
+void Menu::CopyToClipboard(const std::string& text) {
+    ImGui::LogToClipboard();
+    ImGui::LogText(text.c_str());
+    ImGui::LogFinish();
+}
+
 Menu::Menu() {
     name_input = std::make_shared<InputText>("Name", [this](const std::string* selected) {
         match_data.name = const_cast<std::string*>(selected);
@@ -84,22 +103,12 @@ Menu::Menu() {
 
     copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
-            if(CheckName()) return;
+            if(!CheckName()) return;
 
-            const bool pass_valid = match_data.password;
-            const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
-            if(!pass_valid || !pass_entered) {
-                warning_text->SetNameAndColor(PassSuggestedWarning.msg, PassSuggestedWarning.color);
-            }
-            else if(pass_entered) {
-                warning_text->SetName("");
-            }
+            CheckPassword();
 
-            std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:{}/match?action=join&name={}&password={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : ""));
-            ImGui::LogToClipboard();
-            ImGui::LogText(ss.str().c_str());
-            ImGui::LogFinish();
+            const std::string ss = std::vformat(R"(http://localhost:{}/match?action=join&name={}&password={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : ""));
+            CopyToClipboard(ss);
 
             status_text->SetNameAndColor(CopiedJoinLink.msg, CopiedJoinLink.color);
         }
@@ -111,25 +120,13 @@ Menu::Menu() {
 
     copy_create_link_button = std::make_shared<Button>("Copy Create Link", [this] {
         try {
-            if(!match_data.name || match_data.name->empty()){
-                status_text->SetNameAndColor(NameRequiredError.msg, NameRequiredError.color);
-                return;
-            }
+            if(!CheckName()) return;
 
-            const bool pass_valid = match_data.password;
-            const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
-            if(!pass_valid || !pass_entered) {
-                warning_text->SetNameAndColor(PassSuggestedWarning.msg, PassSuggestedWarning.color);
-            }
-            else if(pass_entered) {
-                warning_text->SetName("");
-            }
+            CheckPassword();
 
-            std::stringstream ss;
-            ss << std::vformat(R"(http://localhost:{}/match?action=create&name={}&password={}&region={})", std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : "", static_cast<int>(match_data.region)));
-            ImGui::LogToClipboard();
-            ImGui::LogText(ss.str().c_str());
-            ImGui::LogFinish();
+            const std::string ss = std::vformat(R"(http://localhost:{}/match?action=create&name={}&password={}&region={})",
+                                          std::make_format_args(Settings::Instance().GetSettingsData().port, *match_data.name, match_data.password ? *match_data.password : "", static_cast<int>(match_data.region)));
+            CopyToClipboard(ss);
 
             status_text->SetNameAndColor(CopiedCreateLink.msg, CopiedCreateLink.color);
         }
@@ -149,12 +146,14 @@ Menu::Menu() {
     create_button = std::make_shared<Button>("Create Match", [this] {
         plugin->gameWrapper->Execute([this](GameWrapper* gw) {
                 auto mmwrapper = gw->GetMatchmakingWrapper();
+                if(!CheckName()) return;
                 if(!mmwrapper.IsNull()) {
                     CustomMatchSettings cms;
                     CustomMatchTeamSettings blue, orange;
+                    const bool pass_exists = CheckPassword();
 
                     cms.ServerName = *match_data.name;
-                    cms.Password = *match_data.password;
+                    cms.Password = pass_exists ? *match_data.password : "";
                     cms.MapName = *match_data.map;
                     cms.GameTags = "BotsNone";
                     cms.BlueTeamSettings = blue;
@@ -173,9 +172,11 @@ Menu::Menu() {
     join_button = std::make_shared<Button>("Join Match", [this] {
         plugin->gameWrapper->Execute([this](GameWrapper* gw) {
             auto mmwrapper = gw->GetMatchmakingWrapper();
+            if(!CheckName()) return;
             if(!mmwrapper.IsNull()) {
-                LOG("Joining lobby with name = {} and password = {}", *match_data.name, *match_data.password);
-                mmwrapper.JoinPrivateMatch(*match_data.name, *match_data.password);
+                const auto& pass = CheckPassword() ? *match_data.password : "";
+                LOG("Joining lobby with name = {} and password = {}", *match_data.name, pass);
+                mmwrapper.JoinPrivateMatch(*match_data.name, pass);
             }
         });
     });

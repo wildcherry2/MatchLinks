@@ -16,15 +16,16 @@ bool Settings::Save() {
         out_settings["region"] = data.region;
         out_settings["map"] = data.map;
         out_settings["port"] = data.port;
-        //out_settings["remember_previous_info"] = data.remember_previous_info;
         writer << out_settings;
         writer.close();
 
         LOG("Settings saved to {}", json_path.string());
+        status_text->SetNameAndColor(SaveSuccessful.msg, SaveSuccessful.color);
     }
 
     catch(const std::exception& ex){
         LOG("Error saving settings! {}", ex.what());
+        status_text->SetNameAndColor(SaveError.msg, SaveError.color);
         return false;
     }
 
@@ -33,20 +34,31 @@ bool Settings::Save() {
 
 bool Settings::Load() {
     try {
-        reader.open(json_path);
-        json in_settings;
-        reader >> in_settings;
-        reader.close();
+        if(std::filesystem::exists(json_path)) {
+            reader.open(json_path);
+            json in_settings;
+            reader >> in_settings;
+            reader.close();
 
-        data.enabled = in_settings["enabled"];
-        data.region = in_settings["region"];
-        data.map = in_settings["map"];
-        //data.remember_previous_info = in_settings["remember_previous_info"];
-        data.port = in_settings["port"];
+            data.enabled = in_settings["enabled"];
+            data.region = in_settings["region"];
+            data.map = in_settings["map"];
+            data.port = in_settings["port"];
+            status_text->SetNameAndColor(LoadSuccessful.msg, LoadSuccessful.color);
+        }
+        else {
+            Save(); // Save new cfg json if it doesn't exist yet
+        }
     }
 
     catch(const std::exception& ex){
         LOG("Error loading settings! {}", ex.what());
+        status_text->SetNameAndColor(LoadWarning.msg, LoadWarning.color);
+        data.enabled = true;
+        data.region = 0;
+        data.map = internal_map_names[0];
+        data.port = 2525;
+        Save();
         return false;
     }
     return true;
@@ -56,11 +68,9 @@ void Settings::Render() {
     enabled_checkbox->Render();
 
     if(data.enabled) {
-        //remember_last_info_checkbox->Render();
         settings_map_combobox->Render();
         settings_region_combobox->Render();
         port_inputtext->Render();
-        //settings_save_button->Render();
     }
 }
 
@@ -77,7 +87,6 @@ Settings::Settings() {
     Load();
 
     CVAR(enabled, getBoolValue, "ml_enabled", data.enabled ? "1" : "0", "", true, true, 0, true, 1, false);
-    //CVAR(remember_previous_info, getBoolValue, "ml_remember_info", data.remember_previous_info ? "1" : "0", "", true, true, 0, true, 1, false);
     CVAR(region, getIntValue, "ml_region", std::to_string(data.region), "", true, true, 0, true, 10, false);
     CVAR(map, getStringValue, "ml_map", data.map, "", true, false, 0, false, 0, false);
     CVAR(port, getIntValue, "ml_port", std::to_string(data.port), "", true, true, 0, true, UINT16_MAX, false);
@@ -91,31 +100,28 @@ Settings::Settings() {
             ServerListener::Instance().StartServer();
     });
 
-    /*remember_last_info_checkbox = std::make_shared<Checkbox>("Remember previous match information", data.remember_previous_info, [this](const bool& checked){
-        SETVAR("ml_remember_info", checked ? "1" : "0");
-    });*/
-
     port_inputtext = std::make_shared<InputText>("Listen Port (0-65535)",[this](const std::string* in){
         if(in) {
             try {
-                auto new_port = std::stoull(*in);
+                const auto new_port = std::stoull(*in);
                 if(in->find("-") != std::string::npos) {
                     LOG("Error setting port! Port number can't be negative!");
-                    // TOOLTIP: UINT ONLY!
+                    status_text->SetNameAndColor(SetPortError.msg, SetPortError.color);
                 }
                 else if(new_port <= UINT16_MAX) {
                     SETVAR("ml_port", *in);
-                    ServerListener::Instance().SetPort(new_port);
+                    ServerListener::Instance().SetPort(new_port);  // NOLINT(clang-diagnostic-implicit-int-conversion)
+                    status_text->SetName("");
                 }
                 else {
                     LOG("Error setting port! Port number can only be up to 65,535!");
-                    // TOOLTIP: 2 BYTES ONLY!
+                    status_text->SetNameAndColor(SetPortError.msg, SetPortError.color);
                 }
             }
 
             catch(const std::exception& ex) {
                 LOG("Invalid port entry: {}, {}", *in, ex.what());
-                // TOOLTIP: BAD PORT VALUE
+                status_text->SetNameAndColor(SetPortError.msg + "EXCEPTION CAUGHT: " + ex.what(), SetPortError.color);
             }
         }
     });
@@ -142,9 +148,7 @@ Settings::Settings() {
     }
     settings_map_combobox->SetSelectedIndex(map);
 
-    /*settings_save_button = std::make_shared<Button>("Save Settings", [this]{
-        Save();
-    });*/
+    status_text = std::make_shared<Text>("");
 }
 
 #undef CVAR
@@ -157,7 +161,6 @@ Settings::~Settings() {
     UNREG("ml_enabled");
     UNREG("ml_map");
     UNREG("ml_region");
-    //UNREG("ml_remember_info");
     UNREG("ml_port");
 }
 

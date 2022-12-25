@@ -1,5 +1,6 @@
 #pragma once
 #include "Widgets.h"
+#include "StatusMessage.h"
 
 using ImGuiComponents::Combobox;
 using ImGuiComponents::InputText;
@@ -32,14 +33,7 @@ class Menu {
         std::shared_ptr<Text> status_text;
         std::shared_ptr<Text> warning_text;
 
-        struct StatusMessage {
-            std::string msg;
-            ImVec4 color;
-
-            static inline const ImVec4& GetGoodColor() { return ImGuiComponents::ColorConstants::GREEN; }
-            static inline const ImVec4& GetWarningColor() { return ImGuiComponents::ColorConstants::YELLOW; }
-            static inline const ImVec4& GetErrorColor() { return ImGuiComponents::ColorConstants::RED; }
-        };
+        
 
         static inline const StatusMessage NameRequiredError = { "ERROR: A name is required for private matches!", StatusMessage::GetErrorColor() };
         static inline const StatusMessage PassSuggestedWarning = { "WARNING: This private match has no password set! Players may join with only the name.", StatusMessage::GetWarningColor() };
@@ -48,7 +42,8 @@ class Menu {
         static inline const StatusMessage CopiedCreateLink = { "Copied create link to clipboard!", StatusMessage::GetGoodColor() };
 
         bool CheckName();
-        void CheckPassword();
+        bool CheckPassword();
+        void CopyToClipboard(const std::string& text);
 
         Menu();
         MatchData match_data;
