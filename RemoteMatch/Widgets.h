@@ -22,8 +22,8 @@ namespace ImGuiComponents {
             void                             SetWidth(const float& new_width) { width = new_width; }
             virtual void                     ResizeWidthWithWindow() { width = -1.0f * CalculateLabelWidth(); }
             virtual float                    CalculateLabelWidth() {
-                auto font = ImGui::GetFont();
-                auto size  = font->Scale;
+                const auto font = ImGui::GetFont();
+                const auto size = font->Scale;
                 if(!font) return -100;
                 float width = 0.0f;
                 for(const auto& character : name) {

@@ -75,6 +75,8 @@ Menu::Menu() {
         match_data.region = region_map.at(options[selected]);
     });
 
+    //region_combo->ResizeWidthWithWindow();
+
     auto& settings = Settings::Instance().GetSettingsData();
 
     region_combo->SetSelectedIndex(settings.region);
@@ -87,6 +89,7 @@ Menu::Menu() {
         }
     }
     map_combo->SetSelectedIndex(map);
+    //map_combo->ResizeWidthWithWindow();
 
     show_password_button = std::make_shared<Button>("Show Password", [this] {
         if(show_password_button->GetName() == "Show Password") {
@@ -100,6 +103,7 @@ Menu::Menu() {
     });
 
     password_input->SetFlags(ImGuiInputTextFlags_Password);
+    //password_input->ResizeWidthWithWindow();
 
     copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
@@ -186,5 +190,7 @@ Menu::Menu() {
     
     match_data.map = &settings.map;
     match_data.region = static_cast<Region>(settings.region);
-    
+
+    //name_input->ResizeWidthWithWindow();
+    //password_input->ResizeWidthWithWindow();
 }

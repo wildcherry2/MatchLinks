@@ -15,7 +15,7 @@ public:
 	virtual ~PluginWindowBase() = default;
 
 	bool isWindowOpen_ = false;
-	std::string menuTitle_ = "RemoteMatch";
+	std::string menuTitle_ = "Match Links Menu";
 
 	std::string GetMenuName() override;
 	std::string GetMenuTitle() override;
