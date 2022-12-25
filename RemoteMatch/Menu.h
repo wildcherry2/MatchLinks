@@ -47,6 +47,9 @@ class Menu {
         static inline const StatusMessage CopiedJoinLink = { "Copied join link to clipboard!", StatusMessage::GetGoodColor() };
         static inline const StatusMessage CopiedCreateLink = { "Copied create link to clipboard!", StatusMessage::GetGoodColor() };
 
+        bool CheckName();
+        void CheckPassword();
+
         Menu();
         MatchData match_data;
 };

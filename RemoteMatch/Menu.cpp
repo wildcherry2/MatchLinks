@@ -30,6 +30,15 @@ void Menu::Render() {
     warning_text->Render();
 }
 
+bool Menu::CheckName() {
+    if(!match_data.name || match_data.name->empty()){
+        status_text->SetNameAndColor(NameRequiredError.msg, NameRequiredError.color);
+        return false;
+    }
+
+    return true;
+}
+
 Menu::Menu() {
     name_input = std::make_shared<InputText>("Name", [this](const std::string* selected) {
         match_data.name = const_cast<std::string*>(selected);
@@ -75,10 +84,7 @@ Menu::Menu() {
 
     copy_join_link_button = std::make_shared<Button>("Copy Join Link", [this] {
         try {
-            if(!match_data.name || match_data.name->empty()){
-                status_text->SetNameAndColor(NameRequiredError.msg, NameRequiredError.color);
-                return;
-            }
+            if(CheckName()) return;
 
             const bool pass_valid = match_data.password;
             const bool pass_entered = pass_valid ? !match_data.password->empty() : false;
