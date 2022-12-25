@@ -12,7 +12,7 @@ namespace ImGuiComponents {
     template<typename ReturnSig, typename ... Args>
     class AbstractComponent {
         public:
-            explicit                         AbstractComponent(const std::string& name, std::function<ReturnSig(Args...)> on_interact_callback) : name(name), id(GenerateId()), on_interact_callback(on_interact_callback){}
+            explicit                         AbstractComponent(std::string name, std::function<ReturnSig(Args...)> on_interact_callback) : name(std::move(name)), id(GenerateId()), on_interact_callback(std::move(on_interact_callback)){}
             virtual                          ~AbstractComponent() = default;
             virtual void                     Render(){}
             [[nodiscard]] const std::string& GetName() const { return name; }
@@ -73,9 +73,9 @@ namespace ImGuiComponents {
     class Text : public AbstractComponent<void> {
         public:
             explicit Text(const std::string& name, const ImVec4& color = {255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f});
-            ~Text() = default;
+            ~Text() override = default;
             void Render() override;
-            ImVec4 GetColor() { return {color.x * 255.0f, color.y * 255.0f, color.z * 255.0f, color.w}; }
+            [[nodiscard]] ImVec4 GetColor() { return {color.x * 255.0f, color.y * 255.0f, color.z * 255.0f, color.w}; }
 
             // RGBA format; 0-255 RGB, 0-1 A
             void SetColor(const ImVec4& new_color) { color.x = new_color.x / 255.0f; color.y = new_color.y / 255.0f; color.z = new_color.z / 255.0f; color.w = new_color.w; }
@@ -89,7 +89,7 @@ namespace ImGuiComponents {
             explicit Checkbox(const std::string& name, const bool& checked = false, std::function<void(const bool&)> on_interact_callback = {});
             void Render() override;
             ~Checkbox() override = default;
-            bool GetChecked() { return checked; }
+            [[nodiscard]] bool GetChecked() { return checked; }
             void SetChecked(const bool& checked) { this->checked = checked; }
             
         private:
@@ -105,7 +105,7 @@ namespace ImGuiComponents {
             explicit Combobox(const std::string& name, std::vector<std::string> options, std::function<void(int, const std::vector<std::string>&)> on_interact_callback = {});
             void     Render() override;
             ~Combobox() override = default;
-            std::string GetSelected();
+            [[nodiscard]] std::string GetSelected();
             [[nodiscard]] int GetSelectedIndex() { return selected; }
             void SetSelectedIndex(const int& to_select) { selected = to_select; }
         protected:
@@ -130,14 +130,14 @@ namespace ImGuiComponents {
         public:
             explicit InputText(const std::string& name, std::function<void(const std::string*)> on_interact_callback = {});
             ~InputText() override = default;
-            void Render() override;
-            bool GetInputEnabled();
-            void SetInputEnabled(const bool& is_enabled);
-            void ClearInput();
-            void SetText(const std::string& text) { input_buffer = text; }
-            const std::string& GetText() { return input_buffer; }
-            void SetFlags(int flags) { this->flags = flags; }
-            ImGuiInputTextFlags GetFlags() { return flags; }
+            void                              Render() override;
+            [[nodiscard]] bool                GetInputEnabled();
+            void                              SetInputEnabled(const bool& is_enabled);
+            void                              ClearInput();
+            void                              SetText(const std::string& text) { input_buffer = text; }
+            [[nodiscard]] const std::string&  GetText() { return input_buffer; }
+            void                              SetFlags(const int& flags) { this->flags = flags; }
+            [[nodiscard]] ImGuiInputTextFlags GetFlags() { return flags; }
         protected:
             bool input_enabled = true;
             std::string input_buffer;

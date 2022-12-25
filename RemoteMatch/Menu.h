@@ -18,7 +18,7 @@ class Menu {
     public:
         static Menu& Instance();
         void Render();
-        MatchData& GetMatchData() { return match_data; }
+        [[nodiscard]] MatchData& GetMatchData() { return match_data; }
     private:
         std::shared_ptr<InputText> name_input;
         std::shared_ptr<InputText> password_input;

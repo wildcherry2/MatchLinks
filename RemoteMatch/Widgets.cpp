@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "Widgets.h"
 
+#include <utility>
+
 #pragma region Button
 
-ImGuiComponents::Button::Button(const std::string& name, std::function<void()> on_interact_callback) : AbstractComponent(name, on_interact_callback) {}
+ImGuiComponents::Button::Button(const std::string& name, std::function<void()> on_interact_callback) : AbstractComponent(name, std::move(on_interact_callback)) {}
 
 void ImGuiComponents::Button::Render() {
     SizeRuleBegin();
@@ -30,7 +32,7 @@ void ImGuiComponents::Button::SizeRuleBegin() {
 
 #pragma region InputText
 
-ImGuiComponents::InputText::InputText(const std::string& name, std::function<void(const std::string*)> on_interact_callback) : AbstractComponent<void, const std::string*>(name, on_interact_callback) {}
+ImGuiComponents::InputText::InputText(const std::string& name, std::function<void(const std::string*)> on_interact_callback) : AbstractComponent<void, const std::string*>(name, std::move(on_interact_callback)) {}
 
 void ImGuiComponents::InputText::ClearInput() {
     input_buffer.clear();
@@ -56,7 +58,7 @@ bool ImGuiComponents::InputText::GetInputEnabled() { return input_enabled; }
 
 #pragma region MultilineInputText
 
-ImGuiComponents::MultilineInputText::MultilineInputText(const std::string& name, std::function<void(const std::string*)> on_interact_callback) : InputText(name, on_interact_callback) {}
+ImGuiComponents::MultilineInputText::MultilineInputText(const std::string& name, std::function<void(const std::string*)> on_interact_callback) : InputText(name, std::move(on_interact_callback)) {}
 void ImGuiComponents::MultilineInputText::Render() {
     SizeRuleBegin();
 
@@ -71,7 +73,9 @@ void ImGuiComponents::MultilineInputText::Render() {
 
 #pragma region Combobox
 
-ImGuiComponents::Combobox::Combobox(const std::string& name, std::vector<std::string> options, std::function<void(int, const std::vector<std::string>&)> on_interact_callback) : AbstractComponent<void, int, const std::vector<std::string>&>(name, on_interact_callback),
+ImGuiComponents::Combobox::Combobox(const std::string& name, std::vector<std::string> options, std::function<void(int, const std::vector<std::string>&)> on_interact_callback) : AbstractComponent<void, int, const std::vector<std::string>&>(name,
+                                                                                                                                                                                                                                               std::move(
+                                                                                                                                                                                                                                                   on_interact_callback)),
                                                                                                                                                                                  options(std::move(options)){
     
 }
@@ -94,7 +98,7 @@ std::string ImGuiComponents::Combobox::GetSelected() {
 
 #pragma region Checkbox
 
-ImGuiComponents::Checkbox::Checkbox(const std::string& name, const bool& checked, std::function<void(const bool&)> on_interact_callback) : AbstractComponent<void, const bool&>(name, on_interact_callback), checked(checked) {}
+ImGuiComponents::Checkbox::Checkbox(const std::string& name, const bool& checked, std::function<void(const bool&)> on_interact_callback) : AbstractComponent<void, const bool&>(name, std::move(on_interact_callback)), checked(checked) {}
 
 void ImGuiComponents::Checkbox::Render() {
     SizeRuleBegin();

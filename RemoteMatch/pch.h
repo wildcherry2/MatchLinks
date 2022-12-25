@@ -12,7 +12,6 @@
 #include <functional>
 #include <memory>
 #include <thread>
-#include "json/single_include/nlohmann/json.hpp"
 #include <fstream>
 #include <set>
 
@@ -22,5 +21,7 @@
 #include "IMGUI/imgui_rangeslider.h"
 
 #include "Simple-Web-Server/server_http.hpp"
+
+#include "json/single_include/nlohmann/json.hpp"
 
 #include "logging.h"
