@@ -75,7 +75,7 @@ namespace ImGuiComponents {
             explicit Text(const std::string& name, const ImVec4& color = {255.0f / 255.0f, 255.0f / 255.0f, 255.0f / 255.0f, 1.0f});
             ~Text() = default;
             void Render() override;
-            ImVec4 GetColor() { return ImVec4(color.x * 255.0f, color.y * 255.0f, color.z * 255.0f, color.w); }
+            ImVec4 GetColor() { return {color.x * 255.0f, color.y * 255.0f, color.z * 255.0f, color.w}; }
 
             // RGBA format; 0-255 RGB, 0-1 A
             void SetColor(const ImVec4& new_color) { color.x = new_color.x / 255.0f; color.y = new_color.y / 255.0f; color.z = new_color.z / 255.0f; color.w = new_color.w; }

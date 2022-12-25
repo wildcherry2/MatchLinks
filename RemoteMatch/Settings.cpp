@@ -71,6 +71,7 @@ void Settings::Render() {
         settings_map_combobox->Render();
         settings_region_combobox->Render();
         port_inputtext->Render();
+        status_text->Render();
     }
 }
 
@@ -83,7 +84,7 @@ void Settings::Render() {
 
 Settings::Settings() {
     json_path = plugin->gameWrapper->GetDataFolder() / "MatchLinks.json";
-
+    status_text = std::make_shared<Text>("");
     Load();
 
     CVAR(enabled, getBoolValue, "ml_enabled", data.enabled ? "1" : "0", "", true, true, 0, true, 1, false);
@@ -148,7 +149,7 @@ Settings::Settings() {
     }
     settings_map_combobox->SetSelectedIndex(map);
 
-    status_text = std::make_shared<Text>("");
+    
 }
 
 #undef CVAR
